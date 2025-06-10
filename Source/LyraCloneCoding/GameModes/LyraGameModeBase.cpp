@@ -9,6 +9,7 @@
 #include "LyraCloneCoding/LyraLogChannels.h"
 #include "LyraCloneCoding/Character/LyraCharacter.h"
 #include "LyraCloneCoding/Character/LyraPawnData.h"
+#include "LyraCloneCoding/Character/LyraPawnExtensionComponent.h"
 #include "LyraCloneCoding/Player/LyraPlayerController.h"
 #include "LyraCloneCoding/Player/LyraPlayerState.h"
 
@@ -65,8 +66,29 @@ void ALyraGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController
 APawn* ALyraGameModeBase::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer,
 	const FTransform& SpawnTransform)
 {
-	UE_LOG(LogLyra, Log, TEXT("SpawnDefaultPawnAtTransform_Implementation is called!"));
-	return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.Instigator = GetInstigator();
+	SpawnInfo.ObjectFlags |= RF_Transient;
+	SpawnInfo.bDeferConstruction = true;
+
+	if (UClass* PawnClass = GetDefaultPawnClassForController(NewPlayer))
+	{
+		if (APawn* SpawnedPawn = GetWorld()->SpawnActor<APawn>(PawnClass, SpawnTransform, SpawnInfo))
+		{
+			if (ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(SpawnedPawn))
+			{
+				if (const ULyraPawnData* PawnData = GetPawnDataForController(NewPlayer))
+				{
+					PawnExtComp->SetPawnData(PawnData);
+				}
+			}
+
+			SpawnedPawn->FinishSpawning(SpawnTransform);
+			return SpawnedPawn;
+		}
+	}
+
+	return nullptr;
 }
 
 void ALyraGameModeBase::HandleMatchAssignmentIfNotExpectingOne()

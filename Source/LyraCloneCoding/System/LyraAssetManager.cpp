@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LyraAssetManager.h"
+
+#include "LyraCloneCoding/LyraGameplayTags.h"
 #include "LyraCloneCoding/LyraLogChannels.h"
 
 ULyraAssetManager::ULyraAssetManager()
@@ -22,6 +24,15 @@ ULyraAssetManager& ULyraAssetManager::Get()
 	// 위의 Fatal로 인해, Crash나기 때문에 도달하지는 않지만, 컴파일을 위해 더미로 리턴
 	return *NewObject<ULyraAssetManager>();
 }
+
+PRAGMA_DISABLE_OPTIMIZATION
+void ULyraAssetManager::StartInitialLoading()
+{
+	Super::StartInitialLoading();
+
+	FLyraGameplayTags::InitializeNativeTags();
+}
+PRAGMA_ENABLE_OPTIMIZATION
 
 bool ULyraAssetManager::ShouldLogAssetLoads()
 {

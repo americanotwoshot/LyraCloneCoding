@@ -21,6 +21,8 @@ public:
 	
 	static ULyraAssetManager& Get();
 
+	virtual void StartInitialLoading() final;
+	
 	// FScopeLogTime을 사용할지 않을지 유무 판단을 위해 사용
 	static bool ShouldLogAssetLoads();
 
