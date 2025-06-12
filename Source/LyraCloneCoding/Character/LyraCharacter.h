@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "LyraCharacter.generated.h"
 
+class ULyraCameraComponent;
 class ULyraPawnExtensionComponent;
 
 UCLASS()
@@ -31,4 +32,7 @@ public:
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character")
 	TObjectPtr<ULyraPawnExtensionComponent> PawnExtComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Lyra|Character")
+	TObjectPtr<ULyraCameraComponent> CameraComponent;
 };

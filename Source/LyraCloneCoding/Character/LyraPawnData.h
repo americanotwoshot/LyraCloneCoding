@@ -6,6 +6,7 @@
 #include "Engine/DataAsset.h"
 #include "LyraPawnData.generated.h"
 
+class ULyraCameraMode;
 /**
  * 
  */
@@ -16,7 +17,12 @@ class LYRACLONECODING_API ULyraPawnData : public UPrimaryDataAsset
 
 public:
 	ULyraPawnData(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-	
+
+	/** Pawn의 Class */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Pawn")
 	TSubclassOf<APawn> PawnClass;
+	
+	/** Camera Mode */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Camera")
+	TSubclassOf<ULyraCameraMode> DefaultCameraMode;
 };
