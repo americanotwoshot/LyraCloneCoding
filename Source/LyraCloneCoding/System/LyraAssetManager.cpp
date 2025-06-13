@@ -25,14 +25,12 @@ ULyraAssetManager& ULyraAssetManager::Get()
 	return *NewObject<ULyraAssetManager>();
 }
 
-PRAGMA_DISABLE_OPTIMIZATION
 void ULyraAssetManager::StartInitialLoading()
 {
 	Super::StartInitialLoading();
 
 	FLyraGameplayTags::InitializeNativeTags();
 }
-PRAGMA_ENABLE_OPTIMIZATION
 
 bool ULyraAssetManager::ShouldLogAssetLoads()
 {

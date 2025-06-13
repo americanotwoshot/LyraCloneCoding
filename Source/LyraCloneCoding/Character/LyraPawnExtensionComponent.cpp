@@ -145,7 +145,7 @@ bool ULyraPawnExtensionComponent::CanChangeInitState(UGameFrameworkComponentMana
 	if (CurrentState == InitTags.InitState_DataAvailable && DesiredState == InitTags.InitState_DataInitialized)
 	{
 		// Actor에 바인드된 모든 Feature들이 DataAvailable 상태일 때, true 반환
-		return Manager->HaveAllFeaturesReachedInitState(Pawn, InitTags.InitState_DataInitialized);
+		return Manager->HaveAllFeaturesReachedInitState(Pawn, InitTags.InitState_DataAvailable);
 	}
 
 	// DataInitialized -> GameplayReady

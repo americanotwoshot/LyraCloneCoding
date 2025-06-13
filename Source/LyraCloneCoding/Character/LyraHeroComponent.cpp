@@ -4,11 +4,18 @@
 #include "LyraHeroComponent.h"
 #include "LyraPawnData.h"
 #include "LyraPawnExtensionComponent.h"
+#include "PlayerMappableInputConfig.h"
+#include "EnhancedInputSubsystems.h"
+#include "INodeAndChannelMappings.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "LyraCloneCoding/LyraGameplayTags.h"
 #include "LyraCloneCoding/LyraLogChannels.h"
 #include "LyraCloneCoding/Camera/LyraCameraComponent.h"
+#include "LyraCloneCoding/Input/LyraInputComponent.h"
+#include "LyraCloneCoding/Player/LyraPlayerController.h"
 #include "LyraCloneCoding/Player/LyraPlayerState.h"
+#include "LyraCloneCoding/Input/LyraInputComponent.h"
+#include "LyraCloneCoding/Input/LyraMappableConfigPair.h"
 
 // FeatureName 정의: static member variable 초기화
 const FName ULyraHeroComponent::NAME_ActorFeatureName("Hero");
@@ -152,6 +159,14 @@ void ULyraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
 				CameraComponent->DetermineCameraModeDelegate.BindUObject(this, &ThisClass::DetermineCameraMode);
 			}
 		}
+
+		if (ALyraPlayerController* LyraPC = GetController<ALyraPlayerController>())
+		{
+			if (Pawn->InputComponent != nullptr)
+			{
+				InitializePlayerInput(Pawn->InputComponent);
+			}
+		}
 	}
 }
 
@@ -165,7 +180,6 @@ void ULyraHeroComponent::CheckDefaultInitialization()
 	ContinueInitStateChain(StateChain);
 }
 
-PRAGMA_DISABLE_OPTIMIZATION
 TSubclassOf<ULyraCameraMode> ULyraHeroComponent::DetermineCameraMode() const
 {
 	const APawn* Pawn = GetPawn<APawn>();
@@ -184,4 +198,97 @@ TSubclassOf<ULyraCameraMode> ULyraHeroComponent::DetermineCameraMode() const
 
 	return nullptr;
 }
-PRAGMA_ENABLE_OPTIMIZATION
+
+void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputComponent)
+{
+	check(PlayerInputComponent);
+
+	const APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn)
+	{
+		return;
+	}
+
+	const APlayerController* PC = GetController<APlayerController>();
+	check(PC);
+
+	const ULocalPlayer* LP = PC->GetLocalPlayer();
+	check(LP);
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	check(Subsystem);
+
+	// EnhancedInputLocalPlayerSubsystem의 MappingContext를 비워준다
+	Subsystem->ClearAllMappings();
+
+	// PawnExtensionComponent -> PawnData -> InputConfig 존재 유무 판단
+	if (const ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+	{
+		if (const ULyraPawnData* PawnData = PawnExtComp->GetPawnData<ULyraPawnData>())
+		{
+			if (const ULyraInputConfig* InputConfig = PawnData->InputConfig)
+			{
+				const FLyraGameplayTags& GameplayTags = FLyraGameplayTags::Get();
+
+				const UInputMappingContext* IMC = DefaultInputMappings;
+				{
+					FModifyContextOptions Options = {};
+					Options.bIgnoreAllPressedKeysUntilRelease = false;
+
+					Subsystem->AddMappingContext(IMC, 0, Options);
+				}
+
+				ULyraInputComponent* LyraIC = CastChecked<ULyraInputComponent>(PlayerInputComponent);
+				{
+					LyraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, false);
+					LyraIC->BindNativeAction(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, false);
+				}
+			}
+		}
+	}
+}
+
+void ULyraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
+{
+	APawn* Pawn = GetPawn<APawn>();
+	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
+
+	if (Controller)
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+
+		if (Value.X != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+			Pawn->AddMovementInput(MovementDirection, Value.X);
+		}
+
+		if (Value.Y != 0.0f)
+		{
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+			Pawn->AddMovementInput(MovementDirection, Value.Y);
+		}
+	}
+}
+
+void ULyraHeroComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
+{
+	APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn)
+	{
+		return;
+	}
+
+	const FVector2D Value = InputActionValue.Get<FVector2D>();
+	if (Value.X != 0.0f)
+	{
+		Pawn->AddControllerYawInput(Value.X);
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		double AimInversionValue = -Value.Y;
+		Pawn->AddControllerPitchInput(AimInversionValue);
+	}
+}

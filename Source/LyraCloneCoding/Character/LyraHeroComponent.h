@@ -7,7 +7,10 @@
 #include "Components/PawnComponent.h"
 #include "LyraHeroComponent.generated.h"
 
+struct FInputActionValue;
+class UInputMappingContext;
 class ULyraCameraMode;
+
 /**
  * 카메라, 입력 등 플레이어가 제어하는 시스템의 초기화를 처리하는 컴포넌트
  */
@@ -42,4 +45,17 @@ public:
 	 * member methods
 	 */
 	TSubclassOf<ULyraCameraMode> DetermineCameraMode() const;
+	
+	void InitializePlayerInput(UInputComponent* PlayerInputComponent);
+
+	void Input_Move(const FInputActionValue& InputActionValue);
+	void Input_LookMouse(const FInputActionValue& InputActionValue);
+
+	/**
+	 * member variables
+	 */
+	// 향후 수정 - InitializePlayerInput에서 수정 필요
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UInputMappingContext> DefaultInputMappings;
 };
+
