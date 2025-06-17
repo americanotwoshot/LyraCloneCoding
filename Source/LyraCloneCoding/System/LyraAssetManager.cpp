@@ -53,15 +53,14 @@ UObject* ULyraAssetManager::SynchronousLoadAsset(const FSoftObjectPath& AssetPat
 		}
 
 		// 1. AssetManager가 있으면, AssetManager의 StreamableManager를 통해 정적 로딩
-		if (UAssetManager::IsValid())
-		{
-			return UAssetManager::GetStreamableManager().LoadSynchronous(AssetPath);
-		}
+		
+		return UAssetManager::GetStreamableManager().LoadSynchronous(AssetPath);
+		
 
 		// 2. 아니면, FSoftObjectPath를 통해 정적 로딩
 		// 항상 StaticLoadObject하기 전에 StaticFindObject를 통해 확인하고
 		// 실패하면 진짜 로딩함(매우 느림)
-		return AssetPath.TryLoad();
+		// return AssetPath.TryLoad();
 	}
 
 	return nullptr;

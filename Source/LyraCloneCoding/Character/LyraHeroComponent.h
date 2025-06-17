@@ -7,8 +7,8 @@
 #include "Components/PawnComponent.h"
 #include "LyraHeroComponent.generated.h"
 
-struct FInputActionValue;
 class UInputMappingContext;
+struct FInputActionValue;
 class ULyraCameraMode;
 
 /**
@@ -24,6 +24,9 @@ public:
 
 	// FeatureName 정의
 	static const FName NAME_ActorFeatureName;
+
+	// Extension Event 이름 정의
+	static const FName NAME_BindInputsNow;
 
 	/**
 	 * UPawnComponent interfaces
@@ -54,8 +57,7 @@ public:
 	/**
 	 * member variables
 	 */
-	// 향후 수정 - InitializePlayerInput에서 수정 필요
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UInputMappingContext> DefaultInputMappings;
+	TObjectPtr<UInputMappingContext> DefaultInputMapping;
 };
 

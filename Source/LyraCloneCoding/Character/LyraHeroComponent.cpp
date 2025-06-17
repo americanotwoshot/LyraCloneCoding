@@ -2,23 +2,28 @@
 
 
 #include "LyraHeroComponent.h"
+
+#include "EnhancedInputSubsystemInterface.h"
 #include "LyraPawnData.h"
 #include "LyraPawnExtensionComponent.h"
-#include "PlayerMappableInputConfig.h"
 #include "EnhancedInputSubsystems.h"
-#include "INodeAndChannelMappings.h"
+#include "InputMappingContext.h"
 #include "Components/GameFrameworkComponentManager.h"
 #include "LyraCloneCoding/LyraGameplayTags.h"
 #include "LyraCloneCoding/LyraLogChannels.h"
 #include "LyraCloneCoding/Camera/LyraCameraComponent.h"
+#include "LyraCloneCoding/GameFeatures/GameFeatureAction_AddInputContextMapping.h"
 #include "LyraCloneCoding/Input/LyraInputComponent.h"
 #include "LyraCloneCoding/Player/LyraPlayerController.h"
 #include "LyraCloneCoding/Player/LyraPlayerState.h"
 #include "LyraCloneCoding/Input/LyraInputComponent.h"
-#include "LyraCloneCoding/Input/LyraMappableConfigPair.h"
+#include "UserSettings/EnhancedInputUserSettings.h"
 
 // FeatureName 정의: static member variable 초기화
 const FName ULyraHeroComponent::NAME_ActorFeatureName("Hero");
+
+// InputMapping의 GameFeatureAction 활성화 ExtensionEvent 이름
+const FName ULyraHeroComponent::NAME_BindInputsNow("BindInputsNow");
 
 ULyraHeroComponent::ULyraHeroComponent(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -86,7 +91,6 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 
 	const FLyraGameplayTags& InitTags = FLyraGameplayTags::Get();
 	APawn* Pawn = GetPawn<APawn>();
-	ALyraPlayerState* LyraPS = GetPlayerState<ALyraPlayerState>();
 
 	// InitState_Spawned 초기화
 	if (!CurrentState.IsValid() && DesiredState == InitTags.InitState_Spawned)
@@ -101,7 +105,7 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 	// Spawned -> DataAvailable
 	if (CurrentState == InitTags.InitState_Spawned && DesiredState == InitTags.InitState_DataAvailable)
 	{
-		if (!LyraPS)
+		if (!GetPlayerState<ALyraPlayerState>())
 		{
 			return false;
 		}
@@ -112,6 +116,8 @@ bool ULyraHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Mana
 	// DataAvailable -> DataInitialized
 	if (CurrentState == InitTags.InitState_DataAvailable && DesiredState == InitTags.InitState_DataInitialized)
 	{
+		ALyraPlayerState* LyraPS = GetPlayerState<ALyraPlayerState>();
+		
 		// PawnExtensionComponent가 DataInitialized될 때까지 기다림 (== 모든 feature component가 InitState_DataAvailable인 상태)
 		return LyraPS && Manager->HasFeatureReachedInitState(Pawn, ULyraPawnExtensionComponent::NAME_ActorFeatureName, InitTags.InitState_DataInitialized);
 	}
@@ -228,15 +234,18 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 		{
 			if (const ULyraInputConfig* InputConfig = PawnData->InputConfig)
 			{
-				const FLyraGameplayTags& GameplayTags = FLyraGameplayTags::Get();
-
-				const UInputMappingContext* IMC = DefaultInputMappings;
+				if (UEnhancedInputUserSettings* Settings = Subsystem->GetUserSettings())
 				{
-					FModifyContextOptions Options = {};
-					Options.bIgnoreAllPressedKeysUntilRelease = false;
-
-					Subsystem->AddMappingContext(IMC, 0, Options);
+					Settings->RegisterInputMappingContext(DefaultInputMapping);
 				}
+				
+				FModifyContextOptions Options = {};
+				Options.bIgnoreAllPressedKeysUntilRelease = false;
+				
+				Subsystem->AddMappingContext(DefaultInputMapping, 0, Options);
+				
+
+				const FLyraGameplayTags& GameplayTags = FLyraGameplayTags::Get();
 
 				ULyraInputComponent* LyraIC = CastChecked<ULyraInputComponent>(PlayerInputComponent);
 				{
@@ -246,6 +255,9 @@ void ULyraHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompo
 			}
 		}
 	}
+
+	// GameFeatureAction_AddInputContextMapping의 HandlePawnExtension 콜백 함수 전달
+	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APlayerController*>(PC), NAME_BindInputsNow);
 }
 
 void ULyraHeroComponent::Input_Move(const FInputActionValue& InputActionValue)

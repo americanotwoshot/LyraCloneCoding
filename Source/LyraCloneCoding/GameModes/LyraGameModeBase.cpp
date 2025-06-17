@@ -6,6 +6,7 @@
 #include "LyraExperienceDefinition.h"
 #include "LyraExperienceManagerComponent.h"
 #include "LyraGameState.h"
+#include "Kismet/GameplayStatics.h"
 #include "LyraCloneCoding/LyraLogChannels.h"
 #include "LyraCloneCoding/Character/LyraCharacter.h"
 #include "LyraCloneCoding/Character/LyraPawnData.h"
@@ -98,6 +99,12 @@ void ALyraGameModeBase::HandleMatchAssignmentIfNotExpectingOne()
 
 	UWorld* World = GetWorld();
 
+	if (!ExperienceId.IsValid() && UGameplayStatics::HasOption(OptionsString, TEXT("Experience")))
+	{
+		const FString ExperienceFromOptions = UGameplayStatics::ParseOption(OptionsString, TEXT("Experience"));
+		ExperienceId = FPrimaryAssetId(FPrimaryAssetType(ULyraExperienceDefinition::StaticClass()->GetFName()), FName(*ExperienceFromOptions));
+	}
+	
 	// 일단 기본 옵션으로 B_LyraDefaultExperience로 설정
 	if (!ExperienceId.IsValid())
 	{
