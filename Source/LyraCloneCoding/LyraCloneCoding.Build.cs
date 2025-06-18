@@ -18,6 +18,7 @@ public class LyraCloneCoding : ModuleRules
 			"GameplayTags",		// GAS
 			"ModularGameplay",  // Game Features
 			"GameFeatures",
+			"ModularGameplayActors",
 			"CommonUser",		// CommonUser	
 		});
 
