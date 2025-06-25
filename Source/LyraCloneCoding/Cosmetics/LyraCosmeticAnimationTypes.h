@@ -7,6 +7,30 @@
 #include "LyraCosmeticAnimationTypes.generated.h"
 
 USTRUCT(BlueprintType)
+struct FLyraAnimLayerSelectionEntry
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UAnimInstance> Layer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FGameplayTagContainer RequiredTags;
+};
+
+USTRUCT(BlueprintType)
+struct FLyraAnimLayerSelectionSet
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FLyraAnimLayerSelectionEntry> LayerRules;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UAnimInstance> DefualtLayer;
+};
+
+USTRUCT(BlueprintType)
 struct FLyraAnimBodyStyleSelectionEntry
 {
 	GENERATED_BODY()
