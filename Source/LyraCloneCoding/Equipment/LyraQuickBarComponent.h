@@ -6,6 +6,7 @@
 #include "Components/ControllerComponent.h"
 #include "LyraQuickBarComponent.generated.h"
 
+class ULyraEquipmentManagerComponent;
 class ULyraEquipmentInstance;
 class ULyraInventoryItemInstance;
 /**
@@ -19,6 +20,25 @@ class LYRACLONECODING_API ULyraQuickBarComponent : public UControllerComponent
 public:
 	ULyraQuickBarComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	/**
+	 * ControllerComponent Interface
+	 */
+	virtual void BeginPlay() override;
+
+	/**
+	 * member methods
+	 */
+	ULyraEquipmentManagerComponent* FindEquipmentManager() const;
+	void UnequipItemInSlot();
+	void EquipItemInSlot();
+	
+	// Inventory에 저장되어있는 아이템 인스턴스를 퀵바에 추가하는 함수
+	UFUNCTION(BlueprintCallable)
+	void AddItemToSlot(int32 SlotIndex, ULyraInventoryItemInstance* Item);
+
+	UFUNCTION(BlueprintCallable, Category = "Lyra")
+	void SetActiveSlotIndex(int32 NewIndex);
+	
 	// HUD QuickBar Slot 개수
 	UPROPERTY()
 	int32 NumSlots = 3;

@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "LyraInventoryManagerComponent.generated.h"
 
+class ULyraInventoryItemDefinition;
 class ULyraInventoryItemInstance;
 
 USTRUCT()
@@ -27,6 +28,8 @@ struct FLyraInventoryList
 		: OwnerComponent(InOwnerComponent)
 	{}
 
+	ULyraInventoryItemInstance* AddEntry(TSubclassOf<ULyraInventoryItemDefinition> ItemDef);
+
 	UPROPERTY()
 	TArray<FLyraInventoryEntry> Entries;
 
@@ -41,6 +44,9 @@ class LYRACLONECODING_API ULyraInventoryManagerComponent : public UActorComponen
 	GENERATED_BODY()
 public:
 	ULyraInventoryManagerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	UFUNCTION(BlueprintCallable, Category = Inventory)
+	ULyraInventoryItemInstance* AddItemDefinition(TSubclassOf<ULyraInventoryItemDefinition> ItemDef);
 	
 	UPROPERTY()
 	FLyraInventoryList InventoryList;

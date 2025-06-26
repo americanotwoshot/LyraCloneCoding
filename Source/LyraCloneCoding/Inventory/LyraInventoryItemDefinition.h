@@ -23,6 +23,8 @@ class LYRACLONECODING_API ULyraInventoryItemDefinition : public UObject
 public:
 	ULyraInventoryItemDefinition(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	const ULyraInventoryItemFragment* FindFragmentByClass(TSubclassOf<ULyraInventoryItemFragment> FragmentClass) const;
+	
 	// Inventory Item 정의(메타) 이름
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Display)
 	FText DisplayName;
