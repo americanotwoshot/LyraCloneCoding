@@ -28,6 +28,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = Equipment)
 	APawn* GetPawn() const;
 
+	UFUNCTION(BlueprintPure, Category = Equipment, meta = (DeterminesOutputType = PawnType))
+	APawn* GetTypedPawn(TSubclassOf<APawn> PawnType) const;
+	
 	/**
 	 * member methods
 	 */

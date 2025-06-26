@@ -23,11 +23,14 @@ struct FLyraAnimLayerSelectionSet
 {
 	GENERATED_BODY()
 
+	// CosmeticTags 기반하여, 적절한 AnimLayer를 반환한다
+	TSubclassOf<UAnimInstance> SelectBestLayer(const FGameplayTagContainer& CosmeticTags) const;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FLyraAnimLayerSelectionEntry> LayerRules;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<UAnimInstance> DefualtLayer;
+	TSubclassOf<UAnimInstance> DefaultLayer;
 };
 
 USTRUCT(BlueprintType)
