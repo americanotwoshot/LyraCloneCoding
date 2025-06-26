@@ -16,7 +16,7 @@ public:
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable)
 class LYRACLONECODING_API ULyraInventoryItemDefinition : public UObject
 {
 	GENERATED_BODY()
