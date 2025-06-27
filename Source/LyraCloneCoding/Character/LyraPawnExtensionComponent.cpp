@@ -6,6 +6,7 @@
 #include "Components/GameFrameworkComponentManager.h"
 #include "LyraCloneCoding/LyraGameplayTags.h"
 #include "LyraCloneCoding/LyraLogChannels.h"
+#include "LyraCloneCoding/AbilitySystem/LyraAbilitySystemComponent.h"
 
 // feature name은 component마다 있기 때문에 component라는 이름은 빼고 이름 선언
 const FName ULyraPawnExtensionComponent::NAME_ActorFeatureName("PawnExtension");
@@ -38,6 +39,38 @@ void ULyraPawnExtensionComponent::SetupPlayerInputComponent()
 {
 	// ForceUpdate로 다시 InitState 상태 변환 시작 
 	CheckDefaultInitialization();
+}
+
+void ULyraPawnExtensionComponent::InitializeAbilitySystem(ULyraAbilitySystemComponent* InASC, AActor* InOwnerActor)
+{
+	check(InASC && InOwnerActor);
+
+	if (AbilitySystemComponent == InASC)
+	{
+		return;
+	}
+
+	if (AbilitySystemComponent)
+	{
+		UninitializeAbilitySystem();
+	}
+
+	APawn* Pawn = GetPawnChecked<APawn>();
+	AActor* ExistingAvatar = InASC->GetAvatarActor();
+	check(!ExistingAvatar);
+
+	AbilitySystemComponent = InASC;
+	AbilitySystemComponent->InitAbilityActorInfo(InOwnerActor, Pawn);
+}
+
+void ULyraPawnExtensionComponent::UninitializeAbilitySystem()
+{
+	if (!AbilitySystemComponent)
+	{
+		return;
+	}
+
+	AbilitySystemComponent = nullptr;
 }
 
 void ULyraPawnExtensionComponent::OnRegister()

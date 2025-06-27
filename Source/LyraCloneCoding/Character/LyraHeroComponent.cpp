@@ -147,14 +147,15 @@ void ULyraHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* M
 		{
 			return;
 		}
-
-		// Input과 Camera에 대한 핸들링 (TODO)
-
+		
+		// Input과 Camera에 대한 핸들링
 		const bool bIsLocallyControlled = Pawn->IsLocallyControlled();
 		const ULyraPawnData* PawnData = nullptr;
 		if (ULyraPawnExtensionComponent* PawnExtComp = ULyraPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
 		{
 			PawnData = PawnExtComp->GetPawnData<ULyraPawnData>();
+
+			PawnExtComp->InitializeAbilitySystem(LyraPS->GetLyraAbilitySystemComponent(), LyraPS);
 		}
 
 		if (bIsLocallyControlled && PawnData)

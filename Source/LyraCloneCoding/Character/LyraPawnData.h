@@ -30,4 +30,8 @@ public:
 	/** input configuration used by player controlled pawns to create input mappings and bind input actions */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|InputConfig")
 	TObjectPtr<ULyraInputConfig> InputConfig;
+
+	/** 해당 Pawn의 Ability System에 허용할 AbilitySet */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lyra|Abilities")
+	TArray<TObjectPtr<ULyraAbilitySet>> AbilitySets;
 };

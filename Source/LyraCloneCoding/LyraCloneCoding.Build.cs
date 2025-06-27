@@ -15,11 +15,16 @@ public class LyraCloneCoding : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"EnhancedInput",
-			"GameplayTags",		// GAS
-			"ModularGameplay",  // Game Features
+			// GAS
+			"GameplayTags",	
+			"GameplayTasks",
+			"GameplayAbilities",
+			// Game Features
+			"ModularGameplay",  
 			"GameFeatures",
 			"ModularGameplayActors",
-			"CommonUser",		// CommonUser	
+			// CommonUser	
+			"CommonUser",		
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
